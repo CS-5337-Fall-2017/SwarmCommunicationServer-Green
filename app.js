@@ -212,6 +212,6 @@ app.get('/*', function (req, res) {
 
 app.listen(3742);
 
-console.log("Express app running on port 3000");
+console.log("Express app running on port 3742");
 
 module.exports = app;

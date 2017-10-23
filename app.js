@@ -14,8 +14,7 @@ var enums = require('./enums');
 //JSON obj of a maptile. must be in ALL CAPS, as in enum value
 //     {	
 //		   "scanned": "0000" // binary represents what sensors have scanned the tile from left to right is Chemical, Radar, Radiation, Spectral
-//		   "rover": "ROVER_06", // rover locations with rover name any rover that connects to this RPC or ""
-//         "f": 7,
+//		   "rover": "ROVER_06", // rover locations with rover name any rover that connects to this server or ""
 //         "science": "CRYSTAL",  // , ORGANIC, MINERAL, ARTIFACT, CRYSTAL, NONE
 //		   "x": 12,
 //         "y": 14,

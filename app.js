@@ -11,29 +11,15 @@ var rovers = require('./rovers');
 var utils = require('./utils');
 var enums = require('./enums');
 
-// adding explored by sensor to JSON obj of a maptile below
-// minimal work required for MapTile parser and MapTile class in JAVA
-// side to add the ability to tell what scanner has been used on a tile
-// maptile JSON will look like this. work in progress Luis
-//
-//{
-//  "x":12,
-//  "y":14,
-//  "terrain": "SAND", // GRAVEL, SOIL, ROCK, SAND, NONE
-//  "science": "CRYSTAL",  // , ORGANIC, MINERAL, ARTIFACT, CRYSTAL, NONE
-//	"mineral": "TRUE" // TRUE, FALSE
-//  "artifact": "TRUE" // TRUE, FALSE
-//	"organic": "TRUE" // TRUE, FALSE
-//  "crystal": "TRUE" // TRUE, FALSE
-//};
-
-
 //JSON obj of a maptile. must be in ALL CAPS, as in enum value
-//     {
-//         "x":12,
-//         "y":14,
-//         "terrain": "SAND", // GRAVEL, SOIL, ROCK, SAND, NONE
+//     {	
+//		   "scanned": "0000" // binary represents what sensors have scanned the tile from left to right is Chemical, Radar, Radiation, Spectral
+//		   "rover": "ROVER_06", // rover locations with rover name any rover that connects to this RPC or ""
+//         "f": 7,
 //         "science": "CRYSTAL",  // , ORGANIC, MINERAL, ARTIFACT, CRYSTAL, NONE
+//		   "x": 12,
+//         "y": 14,
+//         "terrain": "SAND", // GRAVEL, SOIL, ROCK, SAND, NONE, UNKNOWN  
 //     };
 
 var roverDetails = {};

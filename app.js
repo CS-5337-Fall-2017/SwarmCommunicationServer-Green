@@ -30,6 +30,7 @@ var roverDetails = {};
 
 var map = {};
 
+var roverLastGet = new Map();
 
 
 // Homepage with instructions
@@ -43,7 +44,14 @@ app.get('/api/global', function (req, res) {
     // if (!secret || secret !== process.env.GREENCORP_537_APIKEY) {
     //     res.status(401).send('Unauthorized. You must have GreenCorp secret to access global map');
     // } else {
-        res.send(utils.mapToGlobal(map));
+        var rovername = req.header('Rover-Name');
+        res.send(() => {
+            let result = utils.mapToGlobal(map);
+            if (rovername) {
+                roverLastGet.set(rovername, new Date().getTime());
+            }
+            return result;
+        });
     // }
 });
 
@@ -62,7 +70,7 @@ app.post('/api/global', function (req, res) {
         var tiles = req.body;
         // validate that the data is an array
         if (tiles && tiles.constructor === Array) {
-            utils.updateGlobalMap(map, tiles, rover);
+            utils.updateGlobalMap(map, tiles, rover, roverLastGet.get(rovername));
             res.send('OK');
         } else {
             res.send('Data must be an array');
@@ -139,12 +147,15 @@ app.post('/api/coord/:x/:y/:science', function (req, res) {
         else {
             if (utils.validateScience(science)) {
                 res.status(400).send('Bad input of science');
-            } else {
-                if (map[key]) {
-                    map[key].science = science;
+            }
+            else {
+                let tile = map[key];
+                if (tile) {
+                    tile.science = science;
                     
                     // specify which rover found this
-                    map[key].f = rover.id;
+                    tile.f = rover.id;
+                    tile.lastUpdated = new Date().getTime();
                     res.send('Changed tile ' + key);
                 } else {
                     res.status(400).send('Coordinate doesn\'t exist in global map');
@@ -168,15 +179,17 @@ app.post('/api/science/gather/:x/:y', function (req, res) {
         if (!key)
             res.status(400).send('Bad input of X and Y');
         else {
-            if (map[key]) {
-                if (map[key].science === 'NONE') {
+            let tile = map[key];
+            if (tile) {
+                if (tile.science === 'NONE') {
                     res.status(400).send('No science in coordinate ' + key);
 
                     // TODO: implement tool and drive validity
                 } else {
                     if (rover.tool !== enums.tools.NONE) {
-                        map[key].g = rover.id;
-                        map[key].science ='NONE'; // removes science
+                        tile.g = rover.id;
+                        tile.science ='NONE'; // removes science
+                        tile.lastUpdated = new Date().getTime();
                         res.status(200).send('Getting : ' + key);
                     }else{
                         res.status(403).send('Rover doesn\'t have tool for it');

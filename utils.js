@@ -5,24 +5,31 @@ var enums = require('./enums');
 
 
 // update global map with tiles from scanMap
-exports.updateGlobalMap = function (map, tiles, rover){
+exports.updateGlobalMap = function (map, tiles, rover, mapDate){
     tiles.forEach(function (tile) {
-
+        
         // validate that data has all attributes and is in correct format
         if (validateTile(tile)) {
             var key = tile.x + "/" + tile.y;
 
+            let mapTile = map[key];
+
             // ****** this is the science check logic ******
             //  if the tile exists in the map
-            if (map[key]) {
+            if (mapTile) {
+
+                changed = false;
+
+                if (mapTile.lastUpdated > mapDate) return;
             	
             	// changes tiles to not have a rover if they have the same name
-            	if (map[key].rover == rover.name)  map[key].rover = "";
-            		 
-        		map[key].rover = tile.rover;
+            	if (mapTile.rover == rover.name)  mapTile.rover = "";
+                     
+                // WTF??
+        		mapTile.rover = tile.rover;
             	
             	// changes values of string
-            	var scanned = map[key].scanned
+            	var scanned = mapTile.scanned;
             	
             	var chem = scanned.charAt(0);
             	var rada = scanned.charAt(1);
@@ -34,36 +41,42 @@ exports.updateGlobalMap = function (map, tiles, rover){
             	if (tile.scanned.charAt(2) == "1") radi = "1";
             	if (tile.scanned.charAt(3) == "1") spec = "1";
             	
-            	scanned = chem + rada + radi + spec;
-            
-                map[key].scanned = scanned;
+                mapTile.scanned = chem + rada + radi + spec;
+
+                if (mapTile.scanned != scanned) {
+                    changed = true;
+                }
 
                 // can overwrite only when the this rover is a sensor
-                if (rover.sensor !== enums.NONE){
+                if (rover.sensor !== enums.NONE) {
 
                     // if sender's tile contains science, overwrite it
                     if (tile.science !== enums.NONE){
-                        map[key].science = tile.science;
+                        mapTile.science = tile.science;
+                        changed = true;
 
                         // else if sender's tile doesn't contain science, it can be two cases:
                         // 1. the science is a type such that can't be detected by sender's sensor - dont overwrite it
                         // 2. the science has been collected and gone. - overwrite it
-                    }else{
-                        if (map[key].science === rover.sensor) {
-                            map[key].science = tile.science;
+                    }
+                    else {
+                        if (mapTile.science === rover.sensor) {
+                            mapTile.science = tile.science;
+                            changed = true;
                         }
                     }
 
                 }
-
-                // if tile doesn't exist in the global map, add it
-            } else {
-     
+                if (changed) mapTile.lastUpdated = new Date().getTime();
+            }
+            // if tile doesn't exist in the global map, add it
+            else {
+                tile.lastUpdated = updateTime;
                 map[key] = tile;
             }
 
             // ****** science check logic end
-
+            
         }
     })
 }

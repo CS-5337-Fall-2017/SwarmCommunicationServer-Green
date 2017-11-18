@@ -12,17 +12,19 @@ exports.updateGlobalMap = function (map, tiles, rover){
         if (validateTile(tile)) {
             var key = tile.x + "/" + tile.y;
 
+            let mapTile = map[key];
+
             // ****** this is the science check logic ******
             //  if the tile exists in the map
-            if (map[key]) {
+            if (mapTile) {
             	
             	// changes tiles to not have a rover if they have the same name
-            	if (map[key].rover == rover.name)  map[key].rover = "";
+            	if (mapTile.rover == rover.name)  mapTile.rover = "";
             		 
-        		map[key].rover = tile.rover;
+        		mapTile.rover = tile.rover;
             	
             	// changes values of string
-            	var scanned = map[key].scanned
+            	var scanned = mapTile.scanned
             	
             	var chem = scanned.charAt(0);
             	var rada = scanned.charAt(1);
@@ -34,25 +36,21 @@ exports.updateGlobalMap = function (map, tiles, rover){
             	if (tile.scanned.charAt(2) == "1") radi = "1";
             	if (tile.scanned.charAt(3) == "1") spec = "1";
             	
-            	scanned = chem + rada + radi + spec;
-            
-                map[key].scanned = scanned;
+                mapTile.scanned = chem + rada + radi + spec;
 
                 // can overwrite only when the this rover is a tool1 or tool2
                 if (enums.science[rover.tool1] || enums.science[rover.tool2]){
 
                     // if sender's tile contains science, overwrite it
                     if (tile.science !== enums.NONE){
-                        map[key].science = tile.science;
+                        mapTile.science = tile.science;
 
-                        // else if sender's tile doesn't contain science, it can be two cases:
-                        // 1. the science is a type such that can't be detected by sender's sensor - dont overwrite it
-                        // 2. the science has been collected and gone. - overwrite it
-                    }else{
-                        if (map[key].science === rover.tool1 || map[key].science === rover.tool2) {
-                            map[key].science = tile.science;
-                        }
-                        
+                    // else if sender's tile doesn't contain science, it can be two cases:
+                    // 1. the science is a type such that can't be detected by sender's sensor - dont overwrite it
+                    // 2. the science has been collected and gone. - overwrite it
+                    }
+                    else if (mapTile.science === rover.tool1 || mapTile.science === rover.tool2) {
+                        mapTile.science = tile.science;
                     }
 
                 }
@@ -79,26 +77,28 @@ exports.mapToGlobal = function(map, scienceParam) {
 
         if (map.hasOwnProperty(key)) {
 
+            let mapTile = map[key];
+
             // if no parameter, just return the global map
             if (!scienceParam) {
-                results.push(map[key]);
+                results.push(mapTile);
                 // if scienceParam requested
             } else if (scienceParam) {
                 // if all
                 if (scienceParam === 'all') {
-                    if (map[key].science !== enums.NONE) {
-                        results.push(map[key]);
+                    if (mapTile.science !== enums.NONE) {
+                        results.push(mapTile);
                     }
 
                     // excavate or drill
                 } else if (scienceParam === 'excavate') {
-                    if ((map[key].terrain === enums.terrain.SAND || map[key].terrain === enums.terrain.SOIL) 
-                        && map[key].science !== enums.NONE)
-                        results.push(map[key]);
+                    if ((mapTile.terrain === enums.terrain.SAND || mapTile.terrain === enums.terrain.SOIL) 
+                        && mapTile.science !== enums.NONE)
+                        results.push(mapTile);
                 } else if (scienceParam === 'drill') {
-                    if ((map[key].terrain === enums.terrain.GRAVEL || map[key].terrain === enums.terrain.ROCK)
-                        && map[key].science !== enums.NONE)
-                        results.push(map[key]);
+                    if ((mapTile.terrain === enums.terrain.GRAVEL || mapTile.terrain === enums.terrain.ROCK)
+                        && mapTile.science !== enums.NONE)
+                        results.push(mapTile);
                 }
             }
         }

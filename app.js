@@ -118,7 +118,7 @@ app.get('/api/science/:option', function (req, res) {
 
 app.get('/api/coord/:x/:y', function (req, res) {
     var key = utils.getKey(req.params.x, req.params.y);
-    var result = (map[key] === undefined) ? '' : map[key];
+    var result = map[key] || '';
     res.send(result);
 });
 
@@ -139,12 +139,14 @@ app.post('/api/coord/:x/:y/:science', function (req, res) {
         else {
             if (utils.validateScience(science)) {
                 res.status(400).send('Bad input of science');
-            } else {
-                if (map[key]) {
-                    map[key].science = science;
+            }
+            else {
+                let mapTile = map[key];
+                if (mapTile) {
+                    mapTile.science = science;
                     
                     // specify which rover found this
-                    map[key].f = rover.id;
+                    mapTile.f = rover.id;
                     res.send('Changed tile ' + key);
                 } else {
                     res.status(400).send('Coordinate doesn\'t exist in global map');
@@ -168,15 +170,16 @@ app.post('/api/science/gather/:x/:y', function (req, res) {
         if (!key)
             res.status(400).send('Bad input of X and Y');
         else {
-            if (map[key]) {
-                if (map[key].science === 'NONE') {
+            let mapTile = map[key];
+            if (mapTile) {
+                if (mapTile.science === 'NONE') {
                     res.status(400).send('No science in coordinate ' + key);
 
                     // TODO: implement tool and drive validity
                 } else {
                     if (enums.tools[rover.tool1] || enums.tools[rover.tool2]) {
 //                        map[key].g = rover.id;
-                        map[key].science ='NONE'; // removes science
+                        mapTile.science ='NONE'; // removes science
                         res.status(200).send('Getting : ' + key);
                     }else{
                         res.status(403).send('Rover doesn\'t have tool for it');

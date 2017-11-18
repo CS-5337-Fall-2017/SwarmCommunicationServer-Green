@@ -174,8 +174,8 @@ app.post('/api/science/gather/:x/:y', function (req, res) {
 
                     // TODO: implement tool and drive validity
                 } else {
-                    if (rover.tool !== enums.tools.NONE) {
-                        map[key].g = rover.id;
+                    if (enums.tools[rover.tool1] || enums.tools[rover.tool2]) {
+//                        map[key].g = rover.id;
                         map[key].science ='NONE'; // removes science
                         res.status(200).send('Getting : ' + key);
                     }else{

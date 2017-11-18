@@ -10,7 +10,7 @@ module.exports = {
         NONE: "NONE"
     },
     tools: {
-        BOTH: "BOTH",
+        BOTH: "BOTH something",
         EXCAVATE: "EXCAVATE",
         DRILL: "DRILL",
         NONE: "NONE"

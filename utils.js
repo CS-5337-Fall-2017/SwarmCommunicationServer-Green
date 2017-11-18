@@ -38,8 +38,8 @@ exports.updateGlobalMap = function (map, tiles, rover){
             
                 map[key].scanned = scanned;
 
-                // can overwrite only when the this rover is a sensor
-                if (rover.sensor !== enums.NONE){
+                // can overwrite only when the this rover is a tool1 or tool2
+                if (enums.science[rover.tool1] || enums.science[rover.tool2]){
 
                     // if sender's tile contains science, overwrite it
                     if (tile.science !== enums.NONE){
@@ -49,9 +49,10 @@ exports.updateGlobalMap = function (map, tiles, rover){
                         // 1. the science is a type such that can't be detected by sender's sensor - dont overwrite it
                         // 2. the science has been collected and gone. - overwrite it
                     }else{
-                        if (map[key].science === rover.sensor) {
+                        if (map[key].science === rover.tool1 || map[key].science === rover.tool2) {
                             map[key].science = tile.science;
                         }
+                        
                     }
 
                 }

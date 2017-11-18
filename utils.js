@@ -5,7 +5,7 @@ var enums = require('./enums');
 
 
 // update global map with tiles from scanMap
-exports.updateGlobalMap = function (map, tiles, rover, mapDate){
+exports.updateGlobalMap = function (map, tiles, rover, rovername, mapDate){
     tiles.forEach(function (tile) {
         
         // validate that data has all attributes and is in correct format
@@ -19,8 +19,6 @@ exports.updateGlobalMap = function (map, tiles, rover, mapDate){
             if (mapTile) {
 
                 changed = false;
-
-                if (mapTile.lastUpdated > mapDate) return;
             	
             	// changes tiles to not have a rover if they have the same name
             	if (mapTile.rover == rover.name)  mapTile.rover = "";
@@ -47,11 +45,16 @@ exports.updateGlobalMap = function (map, tiles, rover, mapDate){
                     changed = true;
                 }
 
+                // Stop here if the map is outdated.
+                if (mapTile.lastUpdated > mapDate) return;
+
                 // can overwrite only when the this rover is a sensor
                 if (rover.sensor !== enums.NONE) {
 
                     // if sender's tile contains science, overwrite it
                     if (tile.science !== enums.NONE){
+                        if (mapTile.science == "CRYSTAL" || tile.science == "CRYSTAL")
+                        console.log("\t1 " + rovername + " UPDATED SCIENCE ON (" + tile.x + ", " + tile.y + ")", mapTile.science, "-->", tile.science);
                         mapTile.science = tile.science;
                         changed = true;
 
@@ -61,6 +64,8 @@ exports.updateGlobalMap = function (map, tiles, rover, mapDate){
                     }
                     else {
                         if (mapTile.science === rover.sensor) {
+                            if (mapTile.science == "CRYSTAL" || tile.science == "CRYSTAL")
+                            console.log("\t2 " + rovername + " UPDATED SCIENCE ON (" + tile.x + ", " + tile.y + ")", mapTile.science, "-->", tile.science, "using", rover.sensor);
                             mapTile.science = tile.science;
                             changed = true;
                         }
@@ -71,7 +76,9 @@ exports.updateGlobalMap = function (map, tiles, rover, mapDate){
             }
             // if tile doesn't exist in the global map, add it
             else {
-                tile.lastUpdated = updateTime;
+                tile.lastUpdated = new Date().getTime();
+                if (tile.science == "CRYSTAL")
+                console.log("\t3 " + rovername + " DISCOVERED TILE ON (" + tile.x + ", " + tile.y + ") NONE -->", tile.science);
                 map[key] = tile;
             }
 

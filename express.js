@@ -14,7 +14,7 @@ module.exports = function () {
     }));
 
     if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
-        app.use(morgan('dev'));
+        //app.use(morgan('dev'));
     } else if (process.env.NODE_ENV === 'game') {
         app.use(compress());
     }

@@ -44,14 +44,20 @@ app.get('/api/global', function (req, res) {
     // if (!secret || secret !== process.env.GREENCORP_537_APIKEY) {
     //     res.status(401).send('Unauthorized. You must have GreenCorp secret to access global map');
     // } else {
+
+
         var rovername = req.header('Rover-Name');
-        res.send(() => {
-            let result = utils.mapToGlobal(map);
-            if (rovername) {
-                roverLastGet.set(rovername, new Date().getTime());
-            }
-            return result;
-        });
+        // res.send(() => {
+        //     let result = utils.mapToGlobal(map);
+        //     if (rovername) {
+        //         roverLastGet.set(rovername, new Date().getTime());
+        //     }
+        //     return result;
+        // });
+
+        res.send(utils.mapToGlobal(map));
+        roverLastGet.set(rovername, new Date().getTime());
+        
     // }
 });
 
@@ -61,7 +67,7 @@ app.post('/api/global', function (req, res) {
     var rovername = req.header('Rover-Name');
     // var secret = req.header('Corp-Secret');
     var rover = rovers[rovername];
-    console.log("Posting Global Map: rover " + rover.id);
+    //console.log("Posting Global Map: rover " + rover.id);
 
     // if (!secret || (secret !== process.env.GREENCORP_537_APIKEY)) {
     //     res.status(401).send('Unauthorized. You must have GreenCorp secret to post');
@@ -70,7 +76,7 @@ app.post('/api/global', function (req, res) {
         var tiles = req.body;
         // validate that the data is an array
         if (tiles && tiles.constructor === Array) {
-            utils.updateGlobalMap(map, tiles, rover, roverLastGet.get(rovername));
+            utils.updateGlobalMap(map, tiles, rover, rovername, roverLastGet.get(rovername));
             res.send('OK');
         } else {
             res.send('Data must be an array');
@@ -85,7 +91,7 @@ app.get('/api/global/reset', function (req, res) {
     // if (!secret || secret !== process.env.GREENCORP_537_APIKEY) {
     //     res.status(401).send('Unauthorized. Ask Sam for reset');
     // } else {
-        console.log("Getting Global Map: rover " + rover.id);
+        //console.log("Getting Global Map: rover " + rover.id);
         map = {};
         res.send("Data cleaned. Now you can do it but later you will require apikey");
     // }
@@ -207,7 +213,7 @@ app.post('/api/rover/detail', function (req, res) {
 
     var rovername = req.header('Rover-Name');
     var rover = rovers[rovername];
-    console.log("Received post rover details from rover " + rover.id);
+    //console.log("Received post rover details from rover " + rover.id);
 
     var roverDetail = req.body;
 
@@ -220,7 +226,7 @@ app.get('/api/rover/detail/all', function (req, res) {
 
     var rovername = req.header('Rover-Name');
     var rover = rovers[rovername];
-    console.log("Received get rover details from rover " + rover.id);
+    //console.log("Received get rover details from rover " + rover.id);
 
     res.status(200).send(roverDetails);
 });
@@ -235,6 +241,6 @@ app.get('/*', function (req, res) {
 
 app.listen(3742);
 
-console.log("Express app running on port 3742");
+//console.log("Express app running on port 3742");
 
 module.exports = app;
